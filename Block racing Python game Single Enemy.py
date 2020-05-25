@@ -8,6 +8,7 @@ import sys
 import random
 import pygame
 
+
 pygame.init()
 
 WIDTH = 800 
@@ -23,8 +24,8 @@ enemy_size = 50
 enemy_pos = [random.randint(0,WIDTH-enemy_size),0]
 enemy_list= [enemy_pos]
 
-SPEED = random.randint(5,30)
-
+#SPEED = random.randint(5,30)
+SPEED = 5
 
 screen = pygame.display.set_mode((WIDTH ,HEIGHT))
 
@@ -49,20 +50,28 @@ while not game_over:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
+            
         if event.type == pygame.KEYDOWN:
+                if player_pos[0] in range (50,WIDTH-50): 
+                    x = player_pos[0] #horizontal movment
+                    y = player_pos[1] #vertical movment
+                    if x in range (50,WIDTH-50):
+                            if event.key == pygame.K_LEFT:
+                                    x -= player_size 
             
-            x = player_pos[0] #horizontal movment
-            y = player_pos[1] #vertical movment
-            
-            if event.key == pygame.K_LEFT:
-                x -= player_size
-            
-            elif event.key == pygame.K_RIGHT:
-                x += player_size
-            
-            player_pos = [x,y]
+                            elif event.key == pygame.K_RIGHT:
+                                    x += player_size
+                if x in range (-100,50):
+                        if event.key == pygame.K_RIGHT:
+                                x += player_size
+                if x in range (700,850):
+                        if event.key == pygame.K_LEFT:
+                                x -= player_size
+                player_pos = [x,y]
             
     #print(event)
+    print(player_pos)
+    print(SCORE)
     screen.fill(Background_color)
     
     if enemy_pos[1]>=0 and enemy_pos[1] < HEIGHT:
