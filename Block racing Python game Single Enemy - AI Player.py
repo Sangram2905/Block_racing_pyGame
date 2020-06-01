@@ -19,19 +19,21 @@ Background_color = (0,0,0)
 SCORE = 0
 NSCORE = 0
 
-Best_score = 99
-
+Best_score = 10
+AIM = 0
+xn=[]
         
 player_size = 50
 player_pos = [400,500]
 
-enemy_size = 50
+enemy_size = 10
 enemy_pos = [random.randint(0,WIDTH-enemy_size),0]
 enemy_list= [enemy_pos]
 
 SPEED = 10
-   
-screen = pygame.display.set_mode((WIDTH ,HEIGHT))
+def create_screen():
+        screen = pygame.display.set_mode((WIDTH ,HEIGHT))
+        return screen
 
 game_over = False
 clock = pygame.time.Clock()
@@ -50,72 +52,125 @@ def detect_collision(player_pos, enemy_pos):
 			return True
 	return False
 
+def collision_check(enemy_list, player_pos):
+	for enemy_pos in enemy_list:
+		if detect_collision(enemy_pos, player_pos):
+			return True
+	return False
+
+
+"""
+Pseudocode
+function alphabeta(node, depth, α, β, maximizingPlayer) is
+    if depth = 0 or node is a terminal node then
+        return the heuristic value of node
+    if maximizingPlayer then
+        value := −∞
+        for each child of node do
+            value := max(value, alphabeta(child, depth − 1, α, β, FALSE))
+            α := max(α, value)
+            if α ≥ β then
+                break (* β cut-off *)
+        return value
+    else
+        value := +∞
+        for each child of node do
+            value := min(value, alphabeta(child, depth − 1, α, β, TRUE))
+            β := min(β, value)
+            if α ≥ β then
+                break (* α cut-off *)
+        return value
+(* Initial call *)
+alphabeta(origin, depth, −∞, +∞, TRUE)
+"""
+#def alphabeta (screen, depth , alpha, beta,maximizingPlayer):
+#       if 
+
+screen = create_screen()
+
 while not game_over:
     #AI Player game play
     x = player_pos[0] #horizontal movment
-    y = player_pos[1] #vertical movment
-    print("if not game over loop")
-    if x in range (50,450):
-            if enemy_pos[0] <= x+50 and enemy_pos[1] >= 400 :
+    y = player_pos[1]#vertical movment
+    
+    #print("if not game over loop")
+                   
+                
+
+    for enemy_pos in enemy_list:
+            
+            if y == enemy_pos[1] and enemy_pos[1] >= 400 and enemy_pos[0] <= x+50 and enemy_pos[0] >= x-50 :
+                    x = x
+            elif enemy_pos[0] <= x+50 and enemy_pos[0] >= x-50 and enemy_pos[1] <= 300 and enemy_pos[1] >= 50 and x< 459:
+                    x += 50
+                    AIM +=100
+            elif x > 460 and enemy_pos[0] <= x+50 and enemy_pos[0] >= x-50 and enemy_pos[1] >= 301:
+                    x -= 50
+                    AIM +=100
+            
+            if x in range (-50,10):
                     x += player_size
-    if x in range (350,750):
-            if enemy_pos[0] >= x-50 and enemy_pos[1] >= 400:
+                    AIM +=100
+            if x in range (800,850):
                     x -= player_size
-    if x in range (-100,50):
-            if enemy_pos[0] >= x and enemy_pos[1] >= 400:
-                    x += player_size
-    if x in range (700,850):
-            if enemy_pos[0] <= x and enemy_pos[1] >= 400:
-                    x -= player_size                       
-                  
+                    AIM +=100
+    
     player_pos = [x,y]
+    
+    delay = random.random()
+       
+    for idx, enemy_pos in enumerate(enemy_list):
+            if enemy_pos[1]>=0 and enemy_pos[1] < HEIGHT:
+                    enemy_pos[1] += SPEED
+            else :
+                    enemy_pos[0] = random.randint(0,WIDTH-enemy_size)
+                    enemy_pos[1] = 0
+                    SCORE += 1
+                    if Best_score < SCORE:
+                            Best_score = SCORE
+    if len(enemy_list) < 5 and delay < 0.1:
+        x_pos = random.randint(0,750)
+        y_pos = 0
+        enemy_list.append([x_pos, y_pos])
+               
+    
     for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                    sys.exit()
-                                
-
-                
-                
-
+                    sys.exit()             
             
     #print(event)
-    print(x,y)
-    print(SCORE)
-    print(enemy_pos[0],enemy_pos[1])
+    print(x,enemy_list)
+    #print(SCORE)
+    #print(enemy_pos[0],enemy_pos[1])
     
     #print(en_x,en_y)
     
     
     screen.fill(Background_color)
-    
-    if enemy_pos[1]>=0 and enemy_pos[1] < HEIGHT:
-        enemy_pos[1] += SPEED
-    else :
-        enemy_pos[0] = random.randint(0,WIDTH-enemy_size)
-        enemy_pos[1] = 0
-        SCORE += 1
-        
+                
     if SCORE > 100:
         Best_score = SCORE
 
     if SCORE >= 0 and SCORE < 15:
-        SPEED = 10
+        SPEED = 5
     elif SCORE >= 15 and SCORE < 35:
-        SPEED = 20
+        SPEED = 7
     elif SCORE >= 35 and SCORE < 55:
-        SPEED = 30
+        SPEED = 8
     elif SCORE >= 55 and SCORE < 75:
-        SPEED = SCORE
+        SPEED = 9
     elif SCORE >= 75:
-        SPEED = 100
+        SPEED = 10
 
         
-    if detect_collision(player_pos,enemy_pos):
-        game_over = True
+    if collision_check(enemy_list, player_pos):
+            game_over = True
+            break
     
         
     
-    pygame.draw.rect(screen,BLUE,(enemy_pos[0],enemy_pos[1],enemy_size,enemy_size))
+    for enemy_pos in enemy_list:
+            pygame.draw.rect(screen,BLUE,(enemy_pos[0],enemy_pos[1],enemy_size,enemy_size))
     
     pygame.draw.rect(screen,RED,(player_pos[0],player_pos[1],player_size,player_size))
     
